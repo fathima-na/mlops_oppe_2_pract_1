@@ -52,7 +52,7 @@ jobs:
         
     - name: Install wrk
       run: |
-        # sudo apt-get update
+        sudo apt-get update
         sudo apt-get install -y wrk
 
     - name: Run Load Test with wrk
@@ -78,7 +78,7 @@ jobs:
     - name: Run Robustness Tests
       run: |
         source venv/bin/activate
-        python src/posion.py
+        python src/poison.py
     
     # - name: Setup CML
     #   uses: iterative/setup-cml@v2
