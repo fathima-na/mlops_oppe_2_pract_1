@@ -59,10 +59,10 @@ jobs:
       run: |
         API_URL=$(kubectl get service api -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
         echo "API_URL=http://$API_URL:80"
-        echo "API_URL=http://$API_URL:80" >> $GITHUB_ENV
+        # echo "API_URL=http://$API_URL:80" >> $GITHUB_ENV
         echo "Running load test on predict"
         echo 'wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict'
-        wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict
+        wrk -t4 -c100 -d30s --latency -s post.lua http://$API_URL:80/predict
  
   robustness:
     runs-on: ubuntu-latest
