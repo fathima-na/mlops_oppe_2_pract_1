@@ -10,6 +10,7 @@ from sklearn.metrics import accuracy_score, f1_score
 from fairlearn.metrics import MetricFrame, selection_rate, false_negative_rate
 import shap
 import matplotlib.pyplot as plt
+from tabulate import tabulate
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -61,7 +62,7 @@ metric_frame = MetricFrame(
 print("\nFairness Metrics by Location:")
 print(metric_frame.by_group)
 report_lines.append("## Fairness Metrics by Location\n")
-# report_lines.append(metric_frame.by_group)
+report_lines.append(tabulate(metric_frame.by_group, headers='keys', tablefmt='github'))
 
 # --- SHAP explainability ---
 # Train SHAP explainer on the trained model
@@ -77,11 +78,8 @@ for group in [0,1]:
         X_test[mask],
         feature_names=X_test.columns,
     )
-    print(f"Displayed SHAP plot for {class_index}, location={group}")
-
-    plt.tight_layout()
     
-    # Convert plot to PNG and encode as Base64
+    plt.tight_layout()
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     plt.close()
@@ -89,8 +87,10 @@ for group in [0,1]:
     img_base64 = base64.b64encode(buf.read()).decode("utf-8")
     
     # Embed in Markdown
-    report_lines.append(f"### SHAP Summary Plot for Class 3, Location {group}")
+    report_lines.append(f"### SHAP Summary Plot for Class {class_index}, Location {group}")
     report_lines.append(f"![SHAP](data:image/png;base64,{img_base64})")
+    
+    print(f"Generated SHAP Summary Plot for Class {class_index}, Location {group}")
 
 # --- Combine everything into Markdown ---
 report_md = "\n\n".join(report_lines)
@@ -108,3 +108,5 @@ force_plot_html = shap.force_plot(
 
 # Save as HTML to view in browser
 shap.save_html("shap_force_plot.html", force_plot_html)
+
+print(f"Force plot for all the test samples is saved as shap_force_plot.html")
