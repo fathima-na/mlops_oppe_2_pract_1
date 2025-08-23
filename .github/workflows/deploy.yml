@@ -40,8 +40,8 @@ jobs:
 
     - name: Build and Push Docker Image to Artifact Registry
       run: |
-        docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-repo1/iris-api:latest .
-        docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-repo1/iris-api:latest
+        docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest .
+        docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest
         
     - name: Deploy to GKE
       run: |
