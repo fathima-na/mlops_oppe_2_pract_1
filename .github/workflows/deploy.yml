@@ -110,6 +110,6 @@ jobs:
         REPO_TOKEN: ${{ secrets.PAT }}
       run: |
         echo "API deployed to Kubernetes using Artifact Registry." >> report.md
-        cml comment create --file fairness_explainability_report.md
+        cml comment create fairness_explainability_report.md --publish
         
 
