@@ -42,13 +42,16 @@ jobs:
       run: |
         docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest .
         docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest
+        echo "# CD " > report.md
+        echo "Build and Push Docker Image to Artifact Registry completed" >> report.md
         
     - name: Deploy to GKE
       run: |
         kubectl apply -f k8/deployment.yml
         kubectl apply -f k8/service.yml
         kubectl apply -f k8/hpa.yml
-        kubectl rollout status deployment/api > report.md
+        kubectl rollout status deployment/api >> report.md
+        echo "Depolyed to GKE" >> report.md
         
     - name: Install wrk
       run: |
@@ -58,11 +61,21 @@ jobs:
     - name: Run Load Test with wrk
       run: |
         API_URL=$(kubectl get service api -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        echo "API_URL=http://$API_URL:80"
-        # echo "API_URL=http://$API_URL:80" >> $GITHUB_ENV
+        echo "Service at API_URL=http://$API_URL:80" >> report.md
+        echo "# Load testing" >> report.md
         echo "Running load test on predict"
         echo 'wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict'
-        wrk -t4 -c100 -d30s --latency -s post.lua http://$API_URL:80/predict
+        wrk -t4 -c100 -d30s --latency -s post.lua http://$API_URL:80/predict >> report.md
+        
+    - name: Setup CML
+      uses: iterative/setup-cml@v2
+
+    - name: Comment results with CML
+      env:
+        REPO_TOKEN: ${{ secrets.PAT }}
+      run: |
+        echo "API deployed to Kubernetes using Artifact Registry." >> report.md
+        cml comment update --publish report.md
  
   robustness:
     runs-on: ubuntu-latest
@@ -70,11 +83,13 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
+      
     - name: Setup Python
       run: |
           python -m venv venv
           source venv/bin/activate
           pip install evidently pandas scikit-learn mlflow
+          
     - name: Run Robustness Tests
       run: |
         source venv/bin/activate
@@ -96,7 +111,7 @@ jobs:
       run: |
           python -m venv venv
           source venv/bin/activate
-          pip install pandas scikit-learn shap fairlearn matplotlib 
+          pip install pandas scikit-learn shap fairlearn matplotlib tabulate
     - name: Run Robustness Tests
       run: |
         source venv/bin/activate
@@ -109,7 +124,6 @@ jobs:
       env:
         REPO_TOKEN: ${{ secrets.PAT }}
       run: |
-        echo "API deployed to Kubernetes using Artifact Registry." >> report.md
         cml comment create fairness_explainability_report.md --publish
         
 
