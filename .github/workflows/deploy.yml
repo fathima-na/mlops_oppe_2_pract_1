@@ -57,9 +57,11 @@ jobs:
 
     - name: Run Load Test with wrk
       run: |
+        API_URL=$(kubectl get service api -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "API_URL=http://$API_URL:80" >> $GITHUB_ENV
         echo "Running load test on predict"
         echo 'wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict'
-        wrk -t4 -c100 -d30s --latency -s post.lua http://34.122.59.18:80/predict
+        wrk -t4 -c100 -d30s --latency -s post.lua $API_UR/predict
         
     # - name: Setup CML
     #   uses: iterative/setup-cml@v2
