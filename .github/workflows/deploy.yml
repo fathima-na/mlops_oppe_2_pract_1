@@ -47,17 +47,32 @@ jobs:
       run: |
         kubectl apply -f k8/deployment.yml
         kubectl apply -f k8/service.yml
-        kubectl rollout status deployment/api
-
-    - name: Setup CML
-      uses: iterative/setup-cml@v2
-
-    - name: Comment results with CML
-      env:
-        REPO_TOKEN: ${{ secrets.PAT }}
+        kubectl apply -f k8/hpa.yml
+        kubectl rollout status deployment/api > report.md
+        
+    - name: Install wrk
       run: |
-        echo "API deployed to Kubernetes using Artifact Registry." > report.md
-        kubectl get pods >> report.md
-        cml comment update --publish report.md
+        # sudo apt-get update
+        sudo apt-get install -y wrk
+
+    - name: Run Load Test with wrk
+      run: |
+        API_URL=$(kubectl get service api -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "API_URL=http://$API_URL:80"
+        echo "API_URL=http://$API_URL:80" >> $GITHUB_ENV
+        echo "Running load test on predict"
+        echo 'wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict'
+        wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict
+        
+    # - name: Setup CML
+    #   uses: iterative/setup-cml@v2
+
+    # - name: Comment results with CML
+    #   env:
+    #     REPO_TOKEN: ${{ secrets.PAT }}
+    #   run: |
+    #     echo "API deployed to Kubernetes using Artifact Registry." >> report.md
+    #     kubectl get pods >> report.md
+    #     cml comment update --publish report.md
         
 
