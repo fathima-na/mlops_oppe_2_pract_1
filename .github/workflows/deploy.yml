@@ -85,16 +85,31 @@ jobs:
       with:
         name: robustness-reports
         path: robustness_reports/*.html
-    
-    # - name: Setup CML
-    #   uses: iterative/setup-cml@v2
+  
+  fairness:
+    runs-on: ubuntu-latest
 
-    # - name: Comment results with CML
-    #   env:
-    #     REPO_TOKEN: ${{ secrets.PAT }}
-    #   run: |
-    #     echo "API deployed to Kubernetes using Artifact Registry." >> report.md
-    #     kubectl get pods >> report.md
-    #     cml comment update --publish report.md
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+    - name: Setup Python
+      run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install pandas scikit-learn shap fairlearn matplotlib 
+    - name: Run Robustness Tests
+      run: |
+        source venv/bin/activate
+        python src/fairness.py
+    
+    - name: Setup CML
+      uses: iterative/setup-cml@v2
+
+    - name: Comment results with CML
+      env:
+        REPO_TOKEN: ${{ secrets.PAT }}
+      run: |
+        echo "API deployed to Kubernetes using Artifact Registry." >> report.md
+        cml comment create --file fairness_explainability_report.md
         
 
