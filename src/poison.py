@@ -18,7 +18,7 @@ import os, sys
 mlflow_flag = 0
 
 try:
-    mlflow.set_tracking_uri("http://34.57.208.131:8201")
+    mlflow.set_tracking_uri("http://34.59.116.25:8201")
     print(f"MLFLOW tracking uri: {mlflow.get_tracking_uri()}")
     mlflow.set_experiment("OPPE2 Pract Experiment")
     print("Experiment set: OPPE2 Pract Experiment")
@@ -133,6 +133,7 @@ for nl in noise_levels:
 
     report_name = f"robustness_reports/poisoning_{int(nl*100)}.html"
     my_eval.save_html(report_name)
+    
     print(f"Evidently report saved: {report_name}")
     
     if mlflow_flag:
