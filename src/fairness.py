@@ -1,3 +1,6 @@
+import io
+import base64
+
 import numpy as np
 import pandas as pd
 from sklearn.datasets import load_wine
@@ -9,6 +12,8 @@ import shap
 import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings('ignore')
+
+report_lines = []
 # --- Load dataset ---
 X, y = load_wine(return_X_y=True, as_frame=True)
 features = X.columns
@@ -55,6 +60,8 @@ metric_frame = MetricFrame(
 
 print("\nFairness Metrics by Location:")
 print(metric_frame.by_group)
+report_lines.append("## Fairness Metrics by Location\n")
+# report_lines.append(metric_frame.by_group)
 
 # --- SHAP explainability ---
 # Train SHAP explainer on the trained model
@@ -73,8 +80,24 @@ for group in [0,1]:
     print(f"Displayed SHAP plot for {class_index}, location={group}")
 
     plt.tight_layout()
-    plt.savefig(f"shap_summary_plot_class{class_index}_location{group}.png")
-    plt.clf() 
+    
+    # Convert plot to PNG and encode as Base64
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    plt.close()
+    buf.seek(0)
+    img_base64 = base64.b64encode(buf.read()).decode("utf-8")
+    
+    # Embed in Markdown
+    report_lines.append(f"### SHAP Summary Plot for Class 3, Location {group}")
+    report_lines.append(f"![SHAP](data:image/png;base64,{img_base64})")
+
+# --- Combine everything into Markdown ---
+report_md = "\n\n".join(report_lines)
+
+# --- Save Markdown report ---
+with open("fairness_explainability_report.md", "w") as f:
+    f.write(report_md)
     
 sample_idx = 0
 force_plot_html = shap.force_plot(
