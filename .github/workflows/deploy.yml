@@ -81,7 +81,7 @@ jobs:
         python src/poison.py
 
     - name: Upload Evidently HTML Reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: robustness-reports
         path: robustness_reports/*.html
