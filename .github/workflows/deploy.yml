@@ -79,6 +79,12 @@ jobs:
       run: |
         source venv/bin/activate
         python src/poison.py
+
+    - name: Upload Evidently HTML Reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: robustness-reports
+        path: robustness_reports/*.html
     
     # - name: Setup CML
     #   uses: iterative/setup-cml@v2
