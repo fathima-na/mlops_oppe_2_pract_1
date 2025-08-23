@@ -38,26 +38,27 @@ jobs:
       run: |
         gcloud auth configure-docker us-central1-docker.pkg.dev
 
-    - name: Build and Push Docker Image to Artifact Registry
-      run: |
-        docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest .
-        docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest
+    # - name: Build and Push Docker Image to Artifact Registry
+    #   run: |
+    #     docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest .
+    #     docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest
         
-    - name: Deploy to GKE
-      run: |
-        kubectl apply -f k8/deployment.yml
-        kubectl apply -f k8/service.yml
-        kubectl apply -f k8/hpa.yml
-        kubectl rollout status deployment/api > report.md
+    # - name: Deploy to GKE
+    #   run: |
+    #     kubectl apply -f k8/deployment.yml
+    #     kubectl apply -f k8/service.yml
+    #     kubectl apply -f k8/hpa.yml
+    #     kubectl rollout status deployment/api > report.md
         
     - name: Install wrk
       run: |
-        sudo apt-get update
+        # sudo apt-get update
         sudo apt-get install -y wrk
 
     - name: Run Load Test with wrk
       run: |
         API_URL=$(kubectl get service api -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "API_URL=http://$API_URL:80"
         echo "API_URL=http://$API_URL:80" >> $GITHUB_ENV
         echo "Running load test on predict"
         echo 'wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict'
