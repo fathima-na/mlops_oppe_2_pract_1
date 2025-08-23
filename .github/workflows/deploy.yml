@@ -38,17 +38,17 @@ jobs:
       run: |
         gcloud auth configure-docker us-central1-docker.pkg.dev
 
-    # - name: Build and Push Docker Image to Artifact Registry
-    #   run: |
-    #     docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest .
-    #     docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest
+    - name: Build and Push Docker Image to Artifact Registry
+      run: |
+        docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest .
+        docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/oppe2-pract-repo/api:latest
         
-    # - name: Deploy to GKE
-    #   run: |
-    #     kubectl apply -f k8/deployment.yml
-    #     kubectl apply -f k8/service.yml
-    #     kubectl apply -f k8/hpa.yml
-    #     kubectl rollout status deployment/api > report.md
+    - name: Deploy to GKE
+      run: |
+        kubectl apply -f k8/deployment.yml
+        kubectl apply -f k8/service.yml
+        kubectl apply -f k8/hpa.yml
+        kubectl rollout status deployment/api > report.md
         
     - name: Install wrk
       run: |
@@ -62,7 +62,7 @@ jobs:
         echo "API_URL=http://$API_URL:80" >> $GITHUB_ENV
         echo "Running load test on predict"
         echo 'wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict'
-        wrk -t4 -c100 -d30s --latency -s post.lua $API_UR/predict
+        wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict
         
     # - name: Setup CML
     #   uses: iterative/setup-cml@v2
