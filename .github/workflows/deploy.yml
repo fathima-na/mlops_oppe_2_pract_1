@@ -63,7 +63,23 @@ jobs:
         echo "Running load test on predict"
         echo 'wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict'
         wrk -t4 -c100 -d30s --latency -s post.lua $API_URL/predict
-        
+ 
+  robustness:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+    - name: Setup Python
+      run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install evidently pandas scikit-learn mlflow
+    - name: Run Robustness Tests
+      run: |
+        source venv/bin/activate
+        python src/posion.py
+    
     # - name: Setup CML
     #   uses: iterative/setup-cml@v2
 
