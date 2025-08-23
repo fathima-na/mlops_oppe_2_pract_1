@@ -18,22 +18,22 @@ spec:
         image: us-central1-docker.pkg.dev/mindful-carport-461217-m4/oppe2-pract-repo/api:latest
         ports:
         - containerPort: 8200
-        # readinessProbe:
-        #   httpGet:
-        #     path: /ready_check
-        #     port: 8200
-        #   initialDelaySeconds: 5
-        #   periodSeconds: 10
-        # livenessProbe:
-        #   httpGet:
-        #     path: /live_check
-        #     port: 8200
-        #   initialDelaySeconds: 15
-        #   periodSeconds: 20
-        # resources:
-        #   requests:
-        #     cpu: "100m"
-        #     memory: "128Mi"
-        #   limits:
-        #     cpu: "500m"
-        #     memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /ready_check
+            port: 8200
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /live_check
+            port: 8200
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
